@@ -23,6 +23,8 @@ import {
   FileText
 } from './MenuIcon';
 import { UserProfile } from '../types/navigation';
+import { PaginationBar } from './PaginationBar';
+import { getTotalPages, paginateRows } from '../utils/pagination';
 import {
   STATISTICS_TREE_CATEGORIES,
   CATEGORY_DATA_MAP,
@@ -139,6 +141,23 @@ export const ClinicalStatisticsView: React.FC<ClinicalStatisticsViewProps> = ({
       return true;
     });
   }, [currentCategoryConfig, filterDepartment, filterSampleType, searchKeyword]);
+
+  // Pagination: total pages + current page slice (table previously rendered
+  // all filtered rows, so the pager buttons had no effect)
+  const totalPages = useMemo(
+    () => getTotalPages(filteredRows.length, pageSize),
+    [filteredRows.length, pageSize]
+  );
+  const pageRows = useMemo(
+    () => paginateRows(filteredRows, currentPage, pageSize),
+    [filteredRows, currentPage, pageSize]
+  );
+
+  // Any filter change returns to the first page, so the table never lands
+  // on an empty page after the result set shrinks
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [filterDepartment, filterSampleType, searchKeyword, dateRange]);
 
   // Reset page when switching categories
   const handleSelectCategory = (itemId: string, itemLabel: string) => {
@@ -607,8 +626,8 @@ export const ClinicalStatisticsView: React.FC<ClinicalStatisticsViewProps> = ({
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 text-slate-700 text-xs">
-                  {filteredRows.length > 0 ? (
-                    filteredRows.map((row, idx) => {
+                  {pageRows.length > 0 ? (
+                    pageRows.map((row, idx) => {
                       const isEven = idx % 2 === 0;
                       return (
                         <tr
@@ -620,7 +639,7 @@ export const ClinicalStatisticsView: React.FC<ClinicalStatisticsViewProps> = ({
                         >
                           {/* Row Index */}
                           <td className="py-2 px-3 text-center font-mono text-slate-400 text-[11px]">
-                            {idx + 1}
+                            {(currentPage - 1) * pageSize + idx + 1}
                           </td>
 
                           {/* Dynamic Cells */}
@@ -770,29 +789,15 @@ export const ClinicalStatisticsView: React.FC<ClinicalStatisticsViewProps> = ({
               <span className="text-slate-400">|</span>
               <span className="text-[11px] text-slate-500">
                 当前目录: 《{activeSubItemLabel}》 · 每页显示 {pageSize} 条 · 第 {currentPage} /{' '}
-                {Math.ceil(filteredRows.length / pageSize) || 1} 页
+                {totalPages} 页
               </span>
             </div>
 
-            <div className="flex items-center gap-1">
-              <button
-                disabled={currentPage <= 1}
-                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                className="px-2 py-1 bg-slate-100 hover:bg-slate-200 disabled:opacity-40 disabled:pointer-events-none rounded text-xs text-slate-700"
-              >
-                上一页
-              </button>
-              <button className="px-2.5 py-1 bg-sky-600 text-white rounded text-xs font-semibold">
-                1
-              </button>
-              <button
-                disabled={currentPage >= Math.ceil(filteredRows.length / pageSize)}
-                onClick={() => setCurrentPage(prev => prev + 1)}
-                className="px-2 py-1 bg-slate-100 hover:bg-slate-200 disabled:opacity-40 disabled:pointer-events-none rounded text-xs text-slate-700"
-              >
-                下一页
-              </button>
-            </div>
+            <PaginationBar
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+            />
           </div>
         </div>
       </div>
