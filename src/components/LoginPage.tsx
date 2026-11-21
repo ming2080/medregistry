@@ -97,7 +97,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
             全流程智慧检验与
           </h2>
           <h2 className="text-3xl sm:text-4xl xl:text-5xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-sky-300 to-blue-500 leading-tight mt-1 mb-6">
-            医疗管控一体化平台
+            医疗管控智能平台
           </h2>
 
           <p className="text-slate-300/90 text-sm sm:text-base leading-relaxed max-w-xl font-normal mb-8">

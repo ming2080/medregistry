@@ -193,7 +193,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       className={`h-screen flex flex-col transition-all duration-300 relative select-none z-30 shrink-0 ${
         collapsed ? 'w-[72px]' : 'w-[268px]'
       } ${themeStyles.wrapper}`}
-      aria-label="医疗管控系统左侧主导航"
+      aria-label="医疗管控智能平台左侧主导航"
     >
       {/* 1. Header Zone: Brand & Hospital */}
       <div className={`px-4 py-4 flex items-center justify-between border-b ${themeStyles.headerBorder}`}>
