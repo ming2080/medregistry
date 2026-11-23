@@ -27,7 +27,6 @@ export interface RejectedSpecimen {
 export const INITIAL_HOME_KPIS = {
   todayReceived: 157,
   testingInProgress: 346,
-  pendingReports: 11,
   pendingMessages: 10,
 };
 
@@ -258,3 +257,25 @@ export const REJECTED_SPECIMENS_DATA: RejectedSpecimen[] = [
     operator: '张珊',
   },
 ];
+
+/**
+ * 超时未发报告的科室筛选选项：由数据去重得到（按首次出现顺序）
+ */
+export const getOverdueDepartments = (): string[] =>
+  Array.from(new Set(OVERDUE_REPORTS_DATA.map((item) => item.department)));
+
+/**
+ * 今日拒收标本的标本类型筛选选项：由数据去重得到（按首次出现顺序）。
+ * 修复写死列表遗漏「阴道分泌物」「腹水」，导致这两类记录无法通过筛选选中的问题。
+ */
+export const getRejectedSpecimenTypes = (): string[] =>
+  Array.from(new Set(REJECTED_SPECIMENS_DATA.map((item) => item.specimen)));
+
+/**
+ * 待审报告急查 / 常规拆分：由超时未发报告的紧急程度统计得到，
+ * urgency 为 high 计为急查，其余计为常规；总数即超时未发报告条数。
+ */
+export const getOverdueUrgencySplit = (): { urgent: number; routine: number } => {
+  const urgent = OVERDUE_REPORTS_DATA.filter((item) => item.urgency === 'high').length;
+  return { urgent, routine: OVERDUE_REPORTS_DATA.length - urgent };
+};

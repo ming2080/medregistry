@@ -639,6 +639,12 @@ const INITIAL_SPECIMENS: SpecimenRecord[] = [
   },
 ];
 
+/** 标本类型快捷筛选：由标本数据去重得到（按首次出现顺序），新增类型自动出现 */
+export const SPECIMEN_TYPE_FILTERS: string[] = [
+  '全部',
+  ...Array.from(new Set(INITIAL_SPECIMENS.map((s) => s.specimenType))),
+];
+
 export const SpecimenManagementView: React.FC<SpecimenManagementViewProps> = ({
   user,
   triggerAction,
@@ -1089,7 +1095,7 @@ export const SpecimenManagementView: React.FC<SpecimenManagementViewProps> = ({
 
           {/* 标本类型快捷胶囊 */}
           <div className="hidden lg:flex items-center gap-1 bg-slate-100 p-0.5 rounded-lg">
-            {['全部', '血液', '痰液', '尿液', '血清', '脑脊液', '胸腹水', '拭子'].map((t) => (
+            {SPECIMEN_TYPE_FILTERS.map((t) => (
               <button
                 key={t}
                 onClick={() => setTypeFilter(t)}

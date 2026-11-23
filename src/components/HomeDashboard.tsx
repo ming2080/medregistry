@@ -4,6 +4,9 @@ import {
   OVERDUE_REPORTS_DATA,
   REJECTED_SPECIMENS_DATA,
   INITIAL_HOME_KPIS,
+  getOverdueDepartments,
+  getRejectedSpecimenTypes,
+  getOverdueUrgencySplit,
   OverdueReport,
   RejectedSpecimen,
 } from '../data/homeData';
@@ -84,6 +87,11 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({ user, triggerActio
   };
 
   // Filter & Sort Overdue Reports (Strictly sorted descending by receiveTime by default)
+  // 筛选选项与待审拆分均由首页数据计算得到，数据增减时自动联动
+  const overdueDepartments = useMemo(() => getOverdueDepartments(), []);
+  const rejectedSpecimenTypes = useMemo(() => getRejectedSpecimenTypes(), []);
+  const overdueUrgencySplit = useMemo(() => getOverdueUrgencySplit(), []);
+
   const filteredOverdue = useMemo(() => {
     const list = OVERDUE_REPORTS_DATA.filter((item) => {
       const matchSearch =
@@ -142,6 +150,12 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({ user, triggerActio
         return 'bg-purple-50 text-purple-700 border-purple-200';
       case '粪便':
         return 'bg-emerald-50 text-emerald-700 border-emerald-200';
+      case '胸水':
+        return 'bg-teal-50 text-teal-700 border-teal-200';
+      case '阴道分泌物':
+        return 'bg-pink-50 text-pink-700 border-pink-200';
+      case '腹水':
+        return 'bg-lime-50 text-lime-700 border-lime-200';
       default:
         return 'bg-slate-50 text-slate-700 border-slate-200';
     }
@@ -270,12 +284,14 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({ user, triggerActio
           </div>
           <div className="mt-2.5 flex items-baseline gap-2 relative z-10">
             <span className="text-3xl font-extrabold font-mono tabular-nums text-purple-900 tracking-tight">
-              {INITIAL_HOME_KPIS.pendingReports}
+              {OVERDUE_REPORTS_DATA.length}
             </span>
             <span className="text-xs text-slate-500 font-medium">份需主管双签</span>
           </div>
           <div className="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500 relative z-10">
-            <span>急查 3 份 · 常规 8 份</span>
+            <span>
+              急查 {overdueUrgencySplit.urgent} 份 · 常规 {overdueUrgencySplit.routine} 份
+            </span>
             <button
               onClick={() => triggerAction('已打开待审报告双签通道')}
               className="text-purple-600 hover:text-purple-800 font-medium"
@@ -368,7 +384,7 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({ user, triggerActio
 
               {/* Department filter */}
               <div className="flex items-center gap-1 overflow-x-auto text-[11px]">
-                {['all', '呼吸内科', '心内科', '肾内科', '急诊科', '消化内科'].map((d) => (
+                {['all', ...overdueDepartments].map((d) => (
                   <button
                     key={d}
                     onClick={() => setOverdueDeptFilter(d)}
@@ -558,7 +574,7 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({ user, triggerActio
 
               {/* Specimen type filter */}
               <div className="flex items-center gap-1 overflow-x-auto text-[11px]">
-                {['all', '血液', '痰液', '尿液', '脑脊液', '粪便', '胸水'].map((s) => (
+                {['all', ...rejectedSpecimenTypes].map((s) => (
                   <button
                     key={s}
                     onClick={() => setRejectedSpecimenFilter(s)}
