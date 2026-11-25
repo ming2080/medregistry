@@ -10,6 +10,7 @@ import {
   OverdueReport,
   RejectedSpecimen,
 } from '../data/homeData';
+import { getUnclosedCrisisCount } from '../data/crisisManagementData';
 import {
   CalendarCheck,
   Layers,
@@ -319,7 +320,7 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({ user, triggerActio
             <span className="text-xs text-slate-500 font-medium">条未处理提醒</span>
           </div>
           <div className="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500 relative z-10">
-            <span className="text-rose-600 font-medium">含 3 条危急值警报</span>
+            <span className="text-rose-600 font-medium">含 {getUnclosedCrisisCount()} 条危急值通报待闭环</span>
             <button
               onClick={() => triggerAction('已跳转至消息与危急值通报面板')}
               className="text-indigo-600 hover:text-indigo-800 font-medium"

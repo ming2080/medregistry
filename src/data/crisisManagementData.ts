@@ -380,3 +380,12 @@ export const INITIAL_CRISIS_ITEMS: CrisisManagementItem[] = [
     },
   },
 ];
+
+/** 未闭环的危急值通报：状态为「待处理」或「已通知」，即临床尚未反馈闭环 */
+export const getUnclosedCrisisItems = (): CrisisManagementItem[] =>
+  INITIAL_CRISIS_ITEMS.filter(
+    (item) => item.status === '待处理' || item.status === '已通知',
+  );
+
+/** 未闭环危急值通报条数，供首页与消息中心共用 */
+export const getUnclosedCrisisCount = (): number => getUnclosedCrisisItems().length;

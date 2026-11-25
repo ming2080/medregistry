@@ -1,4 +1,5 @@
 import { MenuItem, UserProfile } from '../types/navigation';
+import { getUnclosedCrisisCount } from './crisisManagementData';
 
 export const USER_PROFILE: UserProfile = {
   name: '张珊',
@@ -7,7 +8,8 @@ export const USER_PROFILE: UserProfile = {
   subGroup: '微生物组',
   role: '主管检验师',
   avatarUrl: '/src/assets/images/doctor_avatar_1792130816585.jpg',
-  unreadNotifications: 3,
+  // 未读提醒 = 未闭环危急值通报 + 试剂临期、标本拦截两条固定提醒，与消息弹窗条数一致
+  unreadNotifications: getUnclosedCrisisCount() + 2,
 };
 
 export const MENU_ITEMS: MenuItem[] = [
