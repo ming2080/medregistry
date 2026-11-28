@@ -30,6 +30,18 @@ export interface TreeCategory {
   }>;
 }
 
+/**
+ * 「重点指标分布」条形图按优先级取数的计数字段：各分类明细行里实际存在的
+ * 数值字段。行里一个字段都没有时不参与绘图，不编造数字。
+ */
+export const DISTRIBUTION_COUNT_FIELDS: readonly string[] = [
+  'isolateCount',
+  'appliedCount',
+  'receivedCount',
+  'totalCount',
+  'sampleCount',
+];
+
 export const STATISTICS_TREE_CATEGORIES: TreeCategory[] = [
   {
     id: 'work-stats',

@@ -25,8 +25,10 @@ import {
 import { UserProfile } from '../types/navigation';
 import { PaginationBar } from './PaginationBar';
 import { getTotalPages, paginateRows } from '../utils/pagination';
+import { buildDistributionBars } from '../utils/distributionChart';
 import {
   STATISTICS_TREE_CATEGORIES,
+  DISTRIBUTION_COUNT_FIELDS,
   CATEGORY_DATA_MAP,
   CategoryConfig,
   TableColumnDef,
@@ -141,6 +143,15 @@ export const ClinicalStatisticsView: React.FC<ClinicalStatisticsViewProps> = ({
       return true;
     });
   }, [currentCategoryConfig, filterDepartment, filterSampleType, searchKeyword]);
+
+  // Chart 1 data: distribution bars derived from the filtered rows.
+  // Bar width is the row count relative to the largest shown count and
+  // rows are ordered by count; rows without a numeric count field are
+  // excluded instead of receiving an invented number.
+  const distributionBars = useMemo(
+    () => buildDistributionBars(filteredRows, DISTRIBUTION_COUNT_FIELDS),
+    [filteredRows]
+  );
 
   // Pagination: total pages + current page slice (table previously rendered
   // all filtered rows, so the pager buttons had no effect)
@@ -704,47 +715,40 @@ export const ClinicalStatisticsView: React.FC<ClinicalStatisticsViewProps> = ({
                     <span className="text-[11px] text-slate-400">总计 {filteredRows.length} 条样本</span>
                   </div>
                   <div className="mt-4 space-y-3">
-                    {filteredRows.slice(0, 5).map((r, i) => {
-                      const name =
-                        r.name ||
-                        r.patientName ||
-                        r.sampleName ||
-                        r.dept ||
-                        r.department ||
-                        `项目-${i + 1}`;
-                      const count =
-                        r.isolateCount ||
-                        r.appliedCount ||
-                        r.receivedCount ||
-                        r.totalCount ||
-                        r.sampleCount ||
-                        (10 - i * 1.5);
-                      const pct = Math.max(10, Math.min(100, Math.round(Number(count) * 2.5))) + '%';
-                      const colors = [
-                        'bg-sky-600',
-                        'bg-emerald-500',
-                        'bg-amber-500',
-                        'bg-rose-500',
-                        'bg-purple-500',
-                      ];
+                    {distributionBars.length > 0 ? (
+                      distributionBars.map((bar, i) => {
+                        const colors = [
+                          'bg-sky-600',
+                          'bg-emerald-500',
+                          'bg-amber-500',
+                          'bg-rose-500',
+                          'bg-purple-500',
+                        ];
 
-                      return (
-                        <div key={i} className="space-y-1">
-                          <div className="flex items-center justify-between text-[11px]">
-                            <span className="text-slate-700 font-medium">{name}</span>
-                            <span className="text-slate-500 font-mono font-semibold">
-                              {count} {typeof count === 'number' ? '例' : ''}
-                            </span>
+                        return (
+                          <div key={i} className="space-y-1">
+                            <div className="flex items-center justify-between text-[11px]">
+                              <span className="text-slate-700 font-medium">{bar.name}</span>
+                              <span className="text-slate-500 font-mono font-semibold">
+                                {bar.count} 例 · 占比 {(bar.share * 100).toFixed(1)}%
+                              </span>
+                            </div>
+                            <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                              <div
+                                className={`h-full ${colors[i % colors.length]} rounded-full transition-all`}
+                                style={{
+                                  width: `${bar.count > 0 ? Math.max(bar.pct, 4) : 0}%`,
+                                }}
+                              />
+                            </div>
                           </div>
-                          <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-                            <div
-                              className={`h-full ${colors[i % colors.length]} rounded-full transition-all`}
-                              style={{ width: pct }}
-                            />
-                          </div>
-                        </div>
-                      );
-                    })}
+                        );
+                      })
+                    ) : (
+                      <div className="py-8 text-center text-slate-400 text-[11px]">
+                        当前分类暂无可统计的计数字段
+                      </div>
+                    )}
                   </div>
                 </div>
 
